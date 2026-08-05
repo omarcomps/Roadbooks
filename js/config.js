@@ -15,7 +15,7 @@ export const CONFIG = {
   // that list.
   // --------------------------------------------------------------------
   portalUrl: 'https://geo.geomsf.org/portal',
-  appId: 'dys6jtUS5Ei77Lz7',
+  appId: 'VcIZklMbsUfW8voZ',
 
   // --------------------------------------------------------------------
   // DATA LAYERS -- hosted feature layers this app reads from and writes to
