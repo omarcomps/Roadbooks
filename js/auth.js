@@ -41,7 +41,7 @@ export function initAuth(onSignedIn) {
         onSignedIn();
       }, (err) => {
         console.error('Sign-in failed', err);
-        if (btn) { btn.disabled = false; btn.textContent = 'Sign in to OCA Syria Portal'; }
+        if (btn) { btn.disabled = false; btn.textContent = 'Sign in'; }
         showSignInError('Sign-in failed (' + (err && (err.message || err.details) || err) +
           '). If a pop-up window did not appear, allow pop-ups for this site and try again.');
       });
@@ -61,7 +61,7 @@ export function initAuth(onSignedIn) {
       btn.id = 'signin-btn';
       btn.className = 'btn primary';
       btn.style.cssText = 'padding:10px 24px;font-size:13px;flex:none;';
-      btn.textContent = 'Sign in to OCA Syria Portal';
+      btn.textContent = 'Sign in';
       btn.addEventListener('click', attemptSignIn);
       el('signin-msg').appendChild(btn);
     });
