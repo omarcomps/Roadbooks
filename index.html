@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Roadbooks — OCA · Syria</title>
+<link rel="stylesheet" href="libs/leaflet/leaflet.css" />
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<div id="signin-overlay">
+  <div>OCA Syria Portal</div>
+  <div class="msg" id="signin-msg">Checking sign-in status…</div>
+  <div id="signin-error" style="color:#dc2626;font-size:11px;max-width:320px;text-align:center;"></div>
+</div>
+
+<div id="loading-overlay"><span id="loading-text">Working…</span></div>
+
+<div id="app" style="display:none;">
+  <div id="sidebar">
+    <div id="header">
+      <div>
+        <div class="title">Roadbooks</div>
+        <div class="sub">OCA · Syria</div>
+      </div>
+    </div>
+
+    <div id="scroll">
+      <div id="data-info-panel">
+        <button id="data-info-toggle" type="button">
+          <span class="dot" id="data-info-dot"></span>
+          <span id="data-info-summary">Loading data…</span>
+          <span class="chev">▾</span>
+        </button>
+        <div id="data-info-details" style="display:none;"></div>
+      </div>
+
+      <div class="card">
+        <div class="field">
+          <label>Departure (A)</label>
+          <div class="combo">
+            <input type="text" id="dep-input" placeholder="Load waypoints first..." autocomplete="off" disabled />
+            <div class="combo-list" id="dep-list"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Arrival (B)</label>
+          <div class="combo">
+            <input type="text" id="arr-input" placeholder="Load waypoints first..." autocomplete="off" disabled />
+            <div class="combo-list" id="arr-list"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Required Waypoints (optional, auto-ordered)</label>
+          <div class="combo">
+            <input type="text" id="req-input" placeholder="Add a required waypoint..." autocomplete="off" disabled />
+            <div class="combo-list" id="req-list"></div>
+          </div>
+          <div class="chip-list" id="req-chips"></div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Snap Distance (m)</label>
+            <input type="number" id="tolerance-input" min="10" max="5000" step="50" />
+          </div>
+          <div class="field">
+            <label>Avg Speed (km/h)</label>
+            <input type="number" id="speed-input" min="1" step="1" />
+          </div>
+        </div>
+        <div class="hint" id="tolerance-hint"></div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Departure Time</label>
+            <input type="time" id="departure-time-input" />
+          </div>
+          <div class="field">
+            <label>Kisspoint Stop (min)</label>
+            <input type="number" id="kiss-stop-input" min="0" step="1" />
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn primary" id="calc-btn" disabled>Calculate Route</button>
+          <button class="btn secondary" id="reset-btn">Reset</button>
+        </div>
+        <button class="btn outline block" id="add-wp-btn" disabled>✚ Add Waypoint on Map</button>
+        <button class="btn secondary block" id="lock-edit-btn" type="button">Lock Data Editing</button>
+      </div>
+
+      <div class="card" id="options-card" style="display:none;"></div>
+    </div>
+  </div>
+
+  <div id="main">
+    <div id="top-split">
+      <div id="map-pane">
+        <div id="map"></div>
+        <div class="map-hint" id="map-hint" style="display:none;"></div>
+        <div class="toast" id="toast" style="display:none;"></div>
+
+        <div id="basemap-control">
+          <select id="basemap-select"></select>
+          <div id="latlng-control">
+            <input type="text" id="latlng-input" placeholder="lat, lng" autocomplete="off" />
+            <button class="btn secondary sm" id="latlng-go-btn" type="button">Go</button>
+          </div>
+          <div class="hint" id="latlng-hint"></div>
+        </div>
+
+        <div id="legend-panel">
+          <button id="legend-toggle" type="button">
+            <span>Legend</span>
+            <span class="chev">▾</span>
+          </button>
+          <div id="legend-details"></div>
+        </div>
+      </div>
+
+      <div id="diagram-pane">
+        <div class="card-title">Road Diagram</div>
+        <div class="diagram-placeholder" id="schematic-placeholder">Calculate a route to see the waypoint sequence.</div>
+        <div id="schematic-card" style="display:none;">
+          <div class="schematic" id="schematic"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="bottom-panel">
+      <div id="kpi-row">
+        <div class="card" id="summary-card" style="display:none;"></div>
+      </div>
+
+      <div class="card" id="table-card">
+        <div class="table-header">
+          <span class="card-title" style="margin-bottom:0;">Route Manifest</span>
+          <button class="btn secondary xs" id="export-btn" disabled>Export CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table class="manifest">
+            <thead>
+              <tr><th>#</th><th>Waypoint / Segment</th><th class="th-wrap">Out Partial Distance</th><th class="th-wrap">Out Cumulative Distance</th><th>Time</th><th>ETA</th><th class="th-wrap">Ret Partial Distance</th><th class="th-wrap">Ret Cumulative Distance</th><th>Ret Time</th></tr>
+            </thead>
+            <tbody id="table-body"><tr><td colspan="9" class="empty-row">Calculate a route to view the manifest.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="libs/leaflet/leaflet.js"></script>
+<script src="https://js.arcgis.com/3.46/"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
